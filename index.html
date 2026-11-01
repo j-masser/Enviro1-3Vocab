@@ -1,0 +1,627 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Environmental Science Learn</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a single study column like a field notebook page; question card is the one framed object, term list below. */
+:root {
+  --bg: #eef2ec;
+  --surface: #fbfcf9;
+  --fg: #1d2a22;
+  --muted: #5d6c62;
+  --line: #cfd8cf;
+  --accent: #2f6b4a;
+  --accent-ink: #ffffff;
+  --accent-soft: #dceadf;
+  --good: #2e7d4f;
+  --good-soft: #dff0e3;
+  --bad: #b2452f;
+  --bad-soft: #f7e2dc;
+  --warn: #a8741a;
+  --learn: #c9952f;
+  --display: "Zilla Slab", Rockwell, "Roboto Slab", Georgia, serif;
+  --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131a16; --surface: #1b241e; --fg: #e4ebe5; --muted: #9aab9f; --line: #2f3c33;
+    --accent: #7cc49a; --accent-ink: #0f1a13; --accent-soft: #23382b;
+    --good: #7cc49a; --good-soft: #1f3528; --bad: #ec8a74; --bad-soft: #3a221c; --warn: #e0b45c; --learn: #e0b45c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131a16; --surface: #1b241e; --fg: #e4ebe5; --muted: #9aab9f; --line: #2f3c33;
+  --accent: #7cc49a; --accent-ink: #0f1a13; --accent-soft: #23382b;
+  --good: #7cc49a; --good-soft: #1f3528; --bad: #ec8a74; --bad-soft: #3a221c; --warn: #e0b45c; --learn: #e0b45c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 56px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(28px, 6vw, 40px); line-height: 1.05; margin: 2px 0 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; text-wrap: balance; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn {
+  border: 1.5px solid var(--line); background: var(--surface); border-radius: 8px;
+  padding: 9px 16px; font-weight: 700; font-size: 15px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); padding-inline: 8px; }
+.btn.ghost:hover { color: var(--fg); }
+
+/* page tabs */
+.navrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.tabs { display: flex; gap: 4px; padding: 4px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+.tabs a { text-decoration: none; color: var(--muted); font-weight: 700; font-size: 15px; padding: 6px 14px; border-radius: 7px; }
+.tabs a:hover { color: var(--fg); }
+.tabs a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); }
+.tabs a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* progress */
+.progress { display: flex; flex-direction: column; gap: 8px; }
+.bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--line); }
+.bar span { display: block; height: 100%; transition: width .4s ease; }
+.bar .m { background: var(--accent); }
+.bar .l { background: var(--learn); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend b { color: var(--fg); font-family: var(--mono); font-weight: 500; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+
+/* card */
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: clamp(18px, 4vw, 30px); display: flex; flex-direction: column; gap: 18px;
+  box-shadow: 0 1px 0 var(--line), 0 10px 30px -18px rgba(20, 40, 28, .35);
+}
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tag { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+.tag.written { background: color-mix(in srgb, var(--learn) 20%, transparent); color: var(--warn); }
+.roundinfo { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.prompt { font-size: clamp(19px, 3.4vw, 23px); line-height: 1.45; min-height: 3em; overflow-wrap: anywhere; }
+.prompt.is-term { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); }
+.label { font-size: 14px; color: var(--muted); font-weight: 700; }
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 560px) { .options { grid-template-columns: 1fr; } }
+.opt {
+  text-align: left; border: 1.5px solid var(--line); background: var(--bg); border-radius: 10px;
+  padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; min-width: 0; font-size: 16px; line-height: 1.4;
+}
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt .k { flex: none; font-family: var(--mono); font-size: 12px; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; color: var(--muted); margin-top: 1px; }
+.opt .tx { min-width: 0; overflow-wrap: anywhere; }
+.opt:disabled { cursor: default; }
+.opt.right { border-color: var(--good); background: var(--good-soft); }
+.opt.right .k { background: var(--good); color: var(--surface); border-color: var(--good); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.opt.wrong .k { background: var(--bad); color: var(--surface); border-color: var(--bad); }
+.opt.dim { opacity: .55; }
+.writeRow { display: flex; gap: 10px; flex-wrap: wrap; }
+.writeRow input {
+  flex: 1 1 260px; min-width: 0; font: inherit; font-size: 18px; padding: 11px 14px; border-radius: 10px;
+  border: 1.5px solid var(--line); background: var(--bg); color: var(--fg);
+}
+.writeRow input:focus { border-color: var(--accent); outline: none; }
+.feedback { border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.feedback.good { background: var(--good-soft); }
+.feedback.bad { background: var(--bad-soft); }
+.feedback .h { font-weight: 700; }
+.feedback.good .h { color: var(--good); }
+.feedback.bad .h { color: var(--bad); }
+.cmp { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 16px; }
+.cmp dt { color: var(--muted); font-size: 14px; padding-top: 1px; }
+.cmp dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.hint { font-size: 13px; color: var(--muted); }
+.hint kbd { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; background: var(--bg); }
+
+/* checkpoint */
+.ck-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.ck-list li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ck-list .t { font-weight: 700; }
+.ck-list .d { color: var(--muted); font-size: 15px; }
+.mark { font-family: var(--mono); font-weight: 500; }
+.mark.ok { color: var(--good); }
+.mark.no { color: var(--bad); }
+.big { font-family: var(--display); font-size: clamp(36px, 8vw, 52px); font-weight: 700; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+/* settings */
+.settings { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { border: 1.5px solid var(--line); background: var(--bg); border-radius: 99px; padding: 6px 14px; font-size: 15px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.check { display: flex; align-items: center; gap: 10px; font-size: 16px; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.danger { color: var(--bad); }
+.confirmRow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 15px; }
+
+/* term list */
+.terms { display: flex; flex-direction: column; gap: 10px; }
+.termsHead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.filter { display: flex; gap: 6px; flex-wrap: wrap; }
+.tl { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.tl li { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto; gap: 14px; padding: 12px 16px; border-top: 1px solid var(--line); align-items: start; }
+.tl li:first-child { border-top: 0; }
+.tl .t { font-family: var(--display); font-weight: 600; font-size: 18px; overflow-wrap: anywhere; }
+.tl .d { font-size: 15px; color: var(--muted); overflow-wrap: anywhere; }
+.pill { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+.pill.s0 { background: var(--line); color: var(--muted); }
+.pill.s1 { background: color-mix(in srgb, var(--learn) 22%, transparent); color: var(--warn); }
+.pill.s2 { background: var(--accent-soft); color: var(--accent); }
+@media (max-width: 560px) {
+  .tl li { grid-template-columns: minmax(0, 1fr) auto; }
+  .tl .d { grid-column: 1 / -1; grid-row: 2; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+.pop { animation: pop .25s ease; }
+@keyframes pop { from { transform: translateY(4px); opacity: .6; } to { transform: none; opacity: 1; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Unit 1 · Environmental Science · 37 terms</div>
+      <h1>Learn: Laws, Resources &amp; Ethics</h1>
+    </div>
+    <div class="navrow">
+      <nav class="tabs" aria-label="Pages">
+        <a href="#learn" id="tabLearn">Learn</a>
+        <a href="#terms" id="tabTerms">Term list</a>
+      </nav>
+      <button class="btn" id="settingsBtn" aria-expanded="false">Options</button>
+    </div>
+  </header>
+
+  <section class="progress" aria-label="Progress">
+    <div class="bar" aria-hidden="true"><span class="m" id="barM"></span><span class="l" id="barL"></span></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--accent)"></i>Mastered <b id="cM">0</b></span>
+      <span><i class="dot" style="background:var(--learn)"></i>Learning <b id="cL">0</b></span>
+      <span><i class="dot" style="background:var(--line)"></i>Not started <b id="cN">0</b></span>
+    </div>
+  </section>
+
+  <section class="card settings" id="settings" hidden>
+    <h2>Options</h2>
+    <div class="field">
+      <span class="label">Answer with</span>
+      <div class="seg" id="dirSeg">
+        <button data-v="term" aria-pressed="true">Term</button>
+        <button data-v="def" aria-pressed="false">Definition</button>
+        <button data-v="mix" aria-pressed="false">Both</button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="label">Question types</span>
+      <label class="check"><input type="checkbox" id="optWritten" checked> Include written questions (type the answer)</label>
+      <label class="check"><input type="checkbox" id="optShuffle" checked> Shuffle term order</label>
+    </div>
+    <div class="field">
+      <span class="label">Round size</span>
+      <div class="seg" id="sizeSeg">
+        <button data-v="5" aria-pressed="false">5</button>
+        <button data-v="7" aria-pressed="true">7</button>
+        <button data-v="10" aria-pressed="false">10</button>
+      </div>
+    </div>
+    <div class="confirmRow" id="resetRow">
+      <button class="btn danger" id="resetBtn">Reset progress</button>
+    </div>
+    <div class="actions"><span></span><button class="btn primary" id="closeSettings">Done</button></div>
+  </section>
+
+  <section class="card" id="stage" aria-live="polite"></section>
+
+  <section class="terms" id="termsView" hidden>
+    <div class="termsHead">
+      <h2>Terms in this set</h2>
+      <div class="seg filter" id="filterSeg">
+        <button data-v="all" aria-pressed="true">All</button>
+        <button data-v="1" aria-pressed="false">Learning</button>
+        <button data-v="2" aria-pressed="false">Mastered</button>
+        <button data-v="0" aria-pressed="false">Not started</button>
+      </div>
+    </div>
+    <ul class="tl" id="termList"></ul>
+  </section>
+</div>
+
+<script>
+const RAW = `Environmental science	study of the interaction of humans with the natural environment.
+Law of Unintended Consequences	states that the actions of people and governments always have unexpected effects.
+Unsustainability	condition that cannot continue at its current rate.
+Safe Drinking Water Act	Regulates the testing and contents of municipal tap water.
+Clean Water Act	Restricts pollution of surface waters.
+Clean Air Act	Restricts pollution of the atmosphere.
+Resource Conservation and Recovery Act	Describes rules for handling toxic and hazardous waste.
+Endangered Species Act	Lists species at risk for extinction and plans for their recovery.
+CERCLA	Funds the cleanup of hazardous waste sites
+Environmental Policy Act	All federal projects must assess environmental impacts
+Antiquities Act	Enabled creation of National Parks
+Environmental Protection Agency (EPA)	Charged with enforcing environmental laws.
+hazardous waste	Compounds that are especially dangerous to the environment and human health.
+famine	Extreme scarcity of food.
+biodiversity	Amount of variation of species and genes within an area.
+extinction	A species disappears from the Earth completely.
+persistent pollutants	Resist normal environmental degradation.
+Biodegradable pollutants	Decompose over time.
+water pollution	Contamination of lakes, rivers, oceans, and groundwater.
+carcinogenic	Increased the risk of cancer.
+air pollution	Introduction of particles or gases into the atmosphere that are harmful to living organisms.
+invasive species	Species that overpopulate in its new environment and outcompete or harm native species.
+Inexhaustible	resources cannot be used up. Ex. Sunlight.
+Renewable	resources can be replaced, but the process may take a long time. Ex. Timber, soil.
+Nonrenewable	consumed faster than they replenish, as their formation took millions of years. Ex. Coal, oil, natural gas.
+Recyclable nonrenewable	not replaced at the rate they are used, but can be used more than once. Ex. Iron, aluminum, copper.
+Anthropocentrism	human-centered philosophy that protects and promotes human interests or well-being at the expense of all other factors.
+Ecocentrism	nature-centered philosophy that places intrinsic value on ecosystems regardless of their usefulness to humans.
+environmental ethics	the moral relationship that humans have with the environment.
+National Parks	Preserved areas that are relatively unaltered from their original state. No fishing, logging, commercial hunting, or livestock grazing can occur.
+National Forests	federally-managed, but do allow commercial logging and recreational hunting and fishing.
+National Wildlife Refuges	do not allow commercial activities, but may allow recreational hunting and fishing.
+resource depletion	where a resource is consumed faster than it can be replaced
+Commons	areas that are shared and not owned
+Tragedy of the Commons	areas that are shared and not owned, are likely to be depleted as individuals pursue their own self-interests
+conservationists	Those who advocate for the sustainable use and management of natural resources.
+preservationists	Those who attempt to maintain in their present condition areas of the Earth that are to be untouched by humans.`;
+
+const TERMS = RAW.split("\n").map((line, i) => {
+  const [t, d] = line.split("\t");
+  return { id: i, t: t.trim(), d: d.trim().replace(/^./, c => c.toUpperCase()) };
+});
+
+/* Similar terms are grouped so multiple-choice options come from the same kind of term. */
+const GROUPS = {
+  law: ["Safe Drinking Water Act", "Clean Water Act", "Clean Air Act", "Resource Conservation and Recovery Act", "Endangered Species Act", "CERCLA", "Environmental Policy Act", "Antiquities Act", "Environmental Protection Agency (EPA)"],
+  land: ["National Parks", "National Forests", "National Wildlife Refuges"],
+  resource: ["Inexhaustible", "Renewable", "Nonrenewable", "Recyclable nonrenewable", "resource depletion", "Commons", "Tragedy of the Commons", "Unsustainability"],
+  ethics: ["Anthropocentrism", "Ecocentrism", "environmental ethics", "conservationists", "preservationists", "Environmental science", "Law of Unintended Consequences"],
+  problem: ["hazardous waste", "famine", "biodiversity", "extinction", "persistent pollutants", "Biodegradable pollutants", "water pollution", "carcinogenic", "air pollution", "invasive species"]
+};
+/* fallback groups when a group has fewer than 3 other terms */
+const RELATED = { land: ["ethics", "law"], law: ["land"], resource: ["ethics"], ethics: ["resource"], problem: ["resource"] };
+const CAT = {};
+for (const [g, names] of Object.entries(GROUPS)) names.forEach(n => CAT[n] = g);
+TERMS.forEach(x => x.cat = CAT[x.t] || "problem");
+function distractors(item) {
+  let pool = shuffle(TERMS.filter(x => x.cat === item.cat && x.id !== item.id));
+  for (const g of RELATED[item.cat] || []) {
+    if (pool.length >= 3) break;
+    pool = pool.concat(shuffle(TERMS.filter(x => x.cat === g)));
+  }
+  return pool.slice(0, 3);
+}
+
+const KEY = "envsci-learn-v1";
+let S = load() || fresh();
+function fresh() {
+  return { level: TERMS.map(() => 0), dir: "term", written: true, shuffle: true, size: 7 };
+}
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.level) && s.level.length === TERMS.length) return s;
+  } catch (e) {}
+  return null;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- answer checking ---------- */
+const norm = s => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+function lev(a, b) {
+  const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+function termVariants(t) {
+  const v = new Set([t]);
+  const paren = t.match(/^(.*?)\s*\((.*?)\)\s*$/);
+  if (paren) { v.add(paren[1]); v.add(paren[2]); }
+  const out = new Set();
+  for (const x of v) {
+    const n = norm(x); out.add(n);
+    out.add(n.replace(/^the /, ""));
+    if (n.endsWith("s")) out.add(n.slice(0, -1)); else out.add(n + "s");
+  }
+  return [...out];
+}
+/* returns "exact" | "close" | false */
+function checkTerm(input, t) {
+  const a = norm(input); if (!a) return false;
+  const vs = termVariants(t);
+  if (vs.includes(a) || vs.includes(a.replace(/^the /, ""))) return "exact";
+  for (const v of vs) {
+    const tol = v.length >= 12 ? 2 : v.length >= 5 ? 1 : 0;
+    if (tol && lev(a, v) <= tol) return "close";
+  }
+  return false;
+}
+
+/* ---------- round engine ---------- */
+let round = null;   // { queue: [{id, type, dir}], idx, results: Map(id -> bool) }
+let answered = false;
+
+function pickDir() { return S.dir === "mix" ? (Math.random() < .5 ? "term" : "def") : S.dir; }
+function qTypeFor(id) { return S.level[id] >= 1 && S.written ? "written" : "mc"; }
+
+function startRound() {
+  const remaining = TERMS.filter(x => S.level[x.id] < 2).map(x => x.id);
+  if (!remaining.length) return renderDone();
+  // learning terms first, then new ones
+  let learning = remaining.filter(id => S.level[id] === 1);
+  let fresh = remaining.filter(id => S.level[id] === 0);
+  if (S.shuffle) { learning = shuffle(learning); fresh = shuffle(fresh); }
+  const ids = learning.concat(fresh).slice(0, S.size);
+  round = { queue: (S.shuffle ? shuffle(ids) : ids).map(id => ({ id, type: qTypeFor(id), dir: pickDir() })), idx: 0, results: new Map(), total: ids.length };
+  renderQuestion();
+}
+
+function record(id, correct, type) {
+  if (correct) {
+    if (type === "mc") S.level[id] = S.written ? Math.max(S.level[id], 1) : 2;
+    else S.level[id] = 2;
+  } else {
+    // a miss on a written question keeps it in "learning"; a miss on MC marks it as seen
+    S.level[id] = S.level[id] === 2 ? 1 : Math.max(S.level[id], 1);
+    if (type === "mc" && S.level[id] === 1 && !S.written) S.level[id] = 1;
+  }
+  if (!round.results.has(id)) round.results.set(id, correct);
+  else round.results.set(id, round.results.get(id) && correct);
+  save(); renderProgress(); renderList();
+}
+
+function next() {
+  const q = round.queue[round.idx];
+  // missed questions come back once at the end of the round
+  if (round.lastWrong && !q.retried) round.queue.push({ ...q, retried: true, type: qTypeFor(q.id) === "written" && q.type === "written" ? "written" : "mc" });
+  round.lastWrong = false;
+  round.idx++;
+  if (round.idx >= round.queue.length) renderCheckpoint(); else renderQuestion();
+}
+
+/* ---------- rendering ---------- */
+const stage = $("stage");
+
+function headHTML(q) {
+  const done = round.idx + 1, tot = round.queue.length;
+  return `<div class="qhead">
+    <span class="tag ${q.type === "written" ? "written" : ""}">${q.type === "written" ? "Written" : "Multiple choice"}${q.retried ? " · try again" : ""}</span>
+    <span class="roundinfo">Question ${done} / ${tot}</span></div>`;
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = round.queue[round.idx];
+  const item = TERMS[q.id];
+  const promptIsTerm = q.dir === "def";
+  const promptText = promptIsTerm ? item.t : item.d;
+  const ask = q.type === "mc"
+    ? (promptIsTerm ? "Choose the matching definition" : "Choose the matching term")
+    : (promptIsTerm ? "Type the definition" : "Type the term");
+  let body = "";
+  if (q.type === "mc") {
+    const others = distractors(item);
+    const opts = shuffle([item, ...others]);
+    q.opts = opts.map(o => o.id);
+    body = `<div class="options" id="opts">${opts.map((o, i) =>
+      `<button class="opt" data-id="${o.id}"><span class="k">${i + 1}</span><span class="tx">${esc(promptIsTerm ? o.d : o.t)}</span></button>`).join("")}</div>
+      <div class="actions"><span class="hint">Press <kbd>1</kbd>–<kbd>4</kbd> to answer</span><button class="btn ghost" id="dontKnow">Don't know?</button></div>`;
+  } else {
+    body = `<form class="writeRow" id="wform" autocomplete="off">
+        <input id="answer" type="text" placeholder="${promptIsTerm ? "Type the definition" : "Type the term"}" aria-label="Your answer" spellcheck="false">
+        <button class="btn primary" type="submit">Answer</button>
+      </form>
+      <div class="actions"><span class="hint">Press <kbd>Enter</kbd> to check</span><button class="btn ghost" id="dontKnow">Don't know?</button></div>`;
+  }
+  stage.innerHTML = `${headHTML(q)}
+    <div class="prompt ${promptIsTerm ? "is-term" : ""}">${esc(promptText)}</div>
+    <div class="label">${ask}</div>
+    ${body}<div id="fb"></div>`;
+  stage.classList.remove("pop"); void stage.offsetWidth; stage.classList.add("pop");
+
+  if (q.type === "mc") {
+    stage.querySelectorAll(".opt").forEach(b => b.addEventListener("click", () => answerMC(+b.dataset.id)));
+  } else {
+    const inp = $("answer");
+    $("wform").addEventListener("submit", e => { e.preventDefault(); answerWritten(inp.value); });
+    setTimeout(() => inp.focus({ preventScroll: true }), 30);
+  }
+  $("dontKnow").addEventListener("click", () => q.type === "mc" ? answerMC(-1) : answerWritten(null));
+}
+
+function answerMC(chosen) {
+  if (answered) return; answered = true;
+  const q = round.queue[round.idx];
+  const ok = chosen === q.id;
+  stage.querySelectorAll(".opt").forEach(b => {
+    const id = +b.dataset.id; b.disabled = true;
+    if (id === q.id) b.classList.add("right");
+    else if (id === chosen) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  $("dontKnow").hidden = true;
+  stage.querySelector(".hint").hidden = true;
+  record(q.id, ok, "mc");
+  if (ok) {
+    $("fb").innerHTML = `<div class="feedback good"><span class="h">${pick(["Nice work!", "Correct!", "You got it.", "Exactly right."])}</span></div>`;
+    setTimeout(() => { if (round && round.queue[round.idx] === q) next(); }, 900);
+  } else {
+    round.lastWrong = true;
+    $("fb").innerHTML = `<div class="feedback bad"><span class="h">${chosen === -1 ? "Here's the answer. You'll see it again." : "Not quite. You'll see this one again."}</span></div>
+      <div class="actions" style="margin-top:12px"><span class="hint">Press <kbd>Enter</kbd> to continue</span><button class="btn primary" id="cont">Continue</button></div>`;
+    $("cont").addEventListener("click", next); $("cont").focus({ preventScroll: true });
+  }
+}
+
+function answerWritten(value) {
+  if (answered) return;
+  const q = round.queue[round.idx];
+  const item = TERMS[q.id];
+  const expectTerm = q.dir === "term";
+  if (value !== null && !value.trim()) { $("answer").focus(); return; }
+  answered = true;
+  const inp = $("answer"); inp.disabled = true;
+  stage.querySelector("#wform button").disabled = true;
+  $("dontKnow").hidden = true;
+  stage.querySelector(".hint").hidden = true;
+  const correctText = expectTerm ? item.t : item.d;
+
+  if (expectTerm && value !== null) {
+    const res = checkTerm(value, item.t);
+    if (res) {
+      record(q.id, true, "written");
+      $("fb").innerHTML = `<div class="feedback good"><span class="h">${res === "exact" ? "Correct!" : "Correct. Check your spelling."}</span>
+        ${res === "close" ? `<dl class="cmp"><dt>Answer</dt><dd>${esc(correctText)}</dd></dl>` : ""}</div>`;
+      setTimeout(() => { if (round && round.queue[round.idx] === q) next(); }, res === "exact" ? 900 : 1800);
+      return;
+    }
+  }
+  if (!expectTerm && value !== null) {
+    // definitions are graded by the student
+    $("fb").innerHTML = `<div class="feedback"><span class="label">Compare your answer</span>
+      <dl class="cmp"><dt>You said</dt><dd>${esc(value)}</dd><dt>Answer</dt><dd><b>${esc(correctText)}</b></dd></dl></div>
+      <div class="actions" style="margin-top:12px"><span class="hint">Did you get the main idea?</span>
+      <span style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="selfNo">I missed it</button><button class="btn primary" id="selfYes">I got it</button></span></div>`;
+    $("selfYes").addEventListener("click", () => { record(q.id, true, "written"); next(); });
+    $("selfNo").addEventListener("click", () => { record(q.id, false, "written"); round.lastWrong = true; next(); });
+    $("selfYes").focus({ preventScroll: true });
+    return;
+  }
+  record(q.id, false, "written");
+  round.lastWrong = true;
+  $("fb").innerHTML = `<div class="feedback bad"><span class="h">${value === null ? "Here's the answer. You'll see it again." : "Not quite. You'll see this one again."}</span>
+    <dl class="cmp">${value !== null ? `<dt>You said</dt><dd>${esc(value)}</dd>` : ""}<dt>Answer</dt><dd><b>${esc(correctText)}</b></dd></dl></div>
+    <div class="actions" style="margin-top:12px">
+      ${value !== null ? `<button class="btn ghost" id="override">I was right</button>` : "<span></span>"}
+      <button class="btn primary" id="cont">Continue</button></div>`;
+  $("cont").addEventListener("click", next); $("cont").focus({ preventScroll: true });
+  const ov = $("override");
+  if (ov) ov.addEventListener("click", () => {
+    S.level[q.id] = 2; round.results.set(q.id, true); round.lastWrong = false; save(); renderProgress(); renderList(); next();
+  });
+}
+
+function renderCheckpoint() {
+  const ids = [...round.results.keys()];
+  const right = ids.filter(id => round.results.get(id)).length;
+  const mastered = S.level.filter(l => l === 2).length;
+  const left = TERMS.length - mastered;
+  stage.innerHTML = `<div class="qhead"><span class="tag">Round complete</span><span class="roundinfo">${mastered} / ${TERMS.length} mastered</span></div>
+    <div style="display:flex;gap:18px;align-items:end;flex-wrap:wrap">
+      <div class="big">${right}/${ids.length}</div>
+      <div style="padding-bottom:4px">correct on the first try this round.<br><span style="color:var(--muted)">${left ? `${left} term${left === 1 ? "" : "s"} left to master.` : "Every term is mastered."}</span></div>
+    </div>
+    <ul class="ck-list">${ids.map(id => {
+      const ok = round.results.get(id), it = TERMS[id];
+      return `<li><span class="mark ${ok ? "ok" : "no"}">${ok ? "✓" : "✗"}</span><div><div class="t">${esc(it.t)}</div><div class="d">${esc(it.d)}</div></div></li>`;
+    }).join("")}</ul>
+    <div class="actions"><span class="hint">Press <kbd>Enter</kbd> to continue</span><button class="btn primary" id="cont">${left ? "Continue to next round" : "Finish"}</button></div>`;
+  round = null;
+  $("cont").addEventListener("click", startRound);
+  $("cont").focus({ preventScroll: true });
+}
+
+function renderDone() {
+  round = null;
+  stage.innerHTML = `<div class="qhead"><span class="tag">Set complete</span></div>
+    <div class="big">${TERMS.length}/${TERMS.length}</div>
+    <p style="margin:0;font-size:19px">You mastered every term in this set. Study it again to keep it fresh before the test.</p>
+    <div class="actions"><span></span><button class="btn primary" id="again">Study again</button></div>`;
+  $("again").addEventListener("click", () => { S.level = TERMS.map(() => 0); save(); renderProgress(); renderList(); startRound(); });
+}
+
+function renderProgress() {
+  const m = S.level.filter(l => l === 2).length, l = S.level.filter(x => x === 1).length, n = TERMS.length - m - l;
+  $("barM").style.width = (m / TERMS.length * 100) + "%";
+  $("barL").style.width = (l / TERMS.length * 100) + "%";
+  $("cM").textContent = m; $("cL").textContent = l; $("cN").textContent = n;
+}
+
+let filter = "all";
+function renderList() {
+  const names = ["Not started", "Learning", "Mastered"];
+  const items = TERMS.filter(x => filter === "all" || S.level[x.id] === +filter);
+  $("termList").innerHTML = items.length ? items.map(x => `<li><span class="t">${esc(x.t)}</span><span class="d">${esc(x.d)}</span><span class="pill s${S.level[x.id]}">${names[S.level[x.id]]}</span></li>`).join("")
+    : `<li><span class="d">No terms here yet.</span></li>`;
+}
+
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+/* ---------- controls ---------- */
+function setSeg(seg, v) { seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === String(v)))); }
+function syncSettings() {
+  setSeg($("dirSeg"), S.dir); setSeg($("sizeSeg"), S.size);
+  $("optWritten").checked = S.written; $("optShuffle").checked = S.shuffle;
+}
+$("settingsBtn").addEventListener("click", () => {
+  const open = $("settings").hidden; $("settings").hidden = !open; $("settingsBtn").setAttribute("aria-expanded", String(open));
+});
+$("closeSettings").addEventListener("click", () => { $("settings").hidden = true; $("settingsBtn").setAttribute("aria-expanded", "false"); startRound(); });
+$("dirSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; S.dir = b.dataset.v; save(); syncSettings(); });
+$("sizeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; S.size = +b.dataset.v; save(); syncSettings(); });
+$("optWritten").addEventListener("change", e => { S.written = e.target.checked; if (!S.written) S.level = S.level.map(l => l === 1 ? 1 : l); save(); });
+$("optShuffle").addEventListener("change", e => { S.shuffle = e.target.checked; save(); });
+$("filterSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; filter = b.dataset.v; setSeg($("filterSeg"), filter); renderList(); });
+
+const resetRow = $("resetRow");
+function bindReset() {
+  resetRow.innerHTML = `<button class="btn danger" id="resetBtn">Reset progress</button>`;
+  $("resetBtn").addEventListener("click", () => {
+    resetRow.innerHTML = `<span>Clear progress on all ${TERMS.length} terms?</span><button class="btn danger" id="yesReset">Yes, reset</button><button class="btn ghost" id="noReset">Cancel</button>`;
+    $("yesReset").addEventListener("click", () => { S.level = TERMS.map(() => 0); save(); renderProgress(); renderList(); bindReset(); startRound(); });
+    $("noReset").addEventListener("click", bindReset);
+  });
+}
+bindReset();
+
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" && e.target.type === "text") return;
+  if (!$("settings").hidden || !$("termsView").hidden) return;
+  if (/^[1-4]$/.test(e.key)) {
+    const opts = stage.querySelectorAll(".opt");
+    const b = opts[+e.key - 1]; if (b && !b.disabled) { e.preventDefault(); b.click(); }
+  } else if (e.key === "Enter") {
+    const c = $("cont") || $("again");
+    if (c && document.activeElement !== c) { e.preventDefault(); c.click(); }
+  }
+});
+
+function route() {
+  const terms = location.hash === "#terms";
+  $("termsView").hidden = !terms;
+  stage.hidden = terms;
+  $("settingsBtn").hidden = terms;
+  if (terms) { $("settings").hidden = true; $("settingsBtn").setAttribute("aria-expanded", "false"); renderList(); }
+  $("tabLearn").toggleAttribute("aria-current", !terms);
+  $("tabTerms").toggleAttribute("aria-current", terms);
+  if (terms) $("tabTerms").setAttribute("aria-current", "page"); else $("tabLearn").setAttribute("aria-current", "page");
+}
+window.addEventListener("hashchange", route);
+
+syncSettings(); renderProgress(); renderList(); startRound(); route();
+</script>
+
+</body></html>
