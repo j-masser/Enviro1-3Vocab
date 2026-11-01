@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Learn Teacher Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; justify-content: space-between; }
+.toolbar .right { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.toolbar .input { flex: 1 1 200px; max-width: 280px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.stat .n { font-family: var(--display); font-weight: 700; font-size: 32px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .n small { font-size: 18px; color: var(--muted); font-weight: 600; }
+.stat .k { font-size: 14px; color: var(--muted); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.panelHead { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: space-between; align-items: baseline; padding: 16px 18px 12px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: middle; }
+th { font-size: 12px; font-family: var(--mono); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+th button { background: none; border: 0; padding: 0; font: inherit; color: inherit; letter-spacing: inherit; text-transform: inherit; }
+th button[aria-sort] { color: var(--fg); }
+tbody tr.row { cursor: pointer; }
+tbody tr.row:hover { background: var(--bg); }
+tbody tr.row[aria-expanded="true"] { background: var(--bg); }
+td.name b { display: block; }
+td.name span { color: var(--muted); font-size: 13px; }
+.num { text-align: right; }
+.mini { display: flex; align-items: center; gap: 10px; min-width: 170px; }
+.mini .bar { flex: 1; height: 8px; }
+.mini .v { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+.done { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); margin-left: 6px; }
+.quiet { color: var(--muted); }
+.stale { color: var(--warn); }
+.detail td { background: var(--bg); padding: 16px 18px 20px; }
+.detailGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .detailGrid { grid-template-columns: 1fr; } }
+.detailGrid h3 { font-size: 13px; font-family: var(--mono); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 14px; padding: 3px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface); }
+.chip.s2 { border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.chip.s1 { border-color: color-mix(in srgb, var(--learn) 60%, transparent); }
+.chip em { font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--bad); margin-left: 4px; }
+.detailFoot { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 14px; color: var(--muted); }
+.termRow .tname { font-weight: 700; }
+.termRow .tgroup { color: var(--muted); font-size: 13px; }
+.stack { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--line); min-width: 140px; }
+.stack span { height: 100%; }
+.stack .m { background: var(--accent); }
+.stack .l { background: var(--learn); }
+.empty { padding: 28px 18px; color: var(--muted); }
+.missN { font-family: var(--mono); color: var(--bad); }
+</style>
+</head>
+<body>
+<div class="wrap wide">
+  <header>
+    <div>
+      <div class="eyebrow">Environmental Science · Teacher view</div>
+      <h1>Learn Progress Dashboard</h1>
+    </div>
+    <div class="navrow">
+      <a class="btn" href="index.html">Open student site</a>
+      <button class="btn" id="signOut" hidden>Sign out</button>
+    </div>
+  </header>
+
+  <section class="card" id="gate"><p class="lede">Loading…</p></section>
+
+  <div id="app" hidden style="display:flex;flex-direction:column;gap:22px">
+    <div class="toolbar">
+      <div class="seg" id="periodSeg"></div>
+      <div class="right">
+        <input class="input" id="search" type="search" placeholder="Search students" aria-label="Search students">
+        <button class="btn" id="csv">Download CSV</button>
+      </div>
+    </div>
+
+    <section class="stats" id="stats" aria-label="Class summary"></section>
+
+    <section class="panel">
+      <div class="panelHead">
+        <h2>Students</h2>
+        <span class="hint">Click a student to see each term. Updates live as students study.</span>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th><button data-sort="name">Student</button></th>
+            <th><button data-sort="period">Period</button></th>
+            <th><button data-sort="mastered">Mastered</button></th>
+            <th class="num"><button data-sort="accuracy">Accuracy</button></th>
+            <th class="num"><button data-sort="answered">Questions</button></th>
+            <th><button data-sort="lastActive">Last active</button></th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panelHead">
+        <h2>Terms students miss most</h2>
+        <span class="hint">For the students shown above. <span class="dot" style="background:var(--accent)"></span>Mastered <span class="dot" style="background:var(--learn);margin-left:10px"></span>Learning</span>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Term</th><th>Class progress</th><th class="num">Mastered</th><th class="num">Misses</th></tr></thead>
+          <tbody id="termRows"></tbody>
+        </table>
+      </div>
+      <div class="actions" style="padding:12px 18px"><span></span><button class="btn" id="allTerms">Show all terms</button></div>
+    </section>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="terms.js"></script>
+<script>
+const TERMS = window.STUDY_SET.terms;
+const GROUP_NAMES = window.STUDY_SET.groupNames;
+const PERIODS = window.CLASS_PERIODS || [];
+const TEACHERS = (window.TEACHER_EMAILS || []).map(e => e.toLowerCase());
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let students = [];
+let view = { period: "all", q: "", sort: "name", dir: 1, open: null, allTerms: false, confirmDelete: null };
+
+/* ---------- helpers ---------- */
+const levels = s => TERMS.map((_, i) => (Array.isArray(s.level) && [0, 1, 2].includes(s.level[i]) ? s.level[i] : 0));
+const masteredOf = s => levels(s).filter(x => x === 2).length;
+const learningOf = s => levels(s).filter(x => x === 1).length;
+const accuracyOf = s => (s.answered ? s.correct / s.answered : null);
+const lastOf = s => (s.lastActive && s.lastActive.toDate ? s.lastActive.toDate() : null);
+function ago(d) {
+  if (!d) return "Never";
+  const m = (Date.now() - d.getTime()) / 60000;
+  if (m < 2) return "Just now";
+  if (m < 60) return Math.round(m) + " min ago";
+  if (m < 60 * 24) return Math.round(m / 60) + " h ago";
+  if (m < 60 * 48) return "Yesterday";
+  if (m < 60 * 24 * 7) return Math.round(m / 1440) + " days ago";
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+const pct = x => (x == null ? "–" : Math.round(x * 100) + "%");
+
+function filtered() {
+  const q = view.q.trim().toLowerCase();
+  let list = students.filter(s =>
+    (view.period === "all" || (s.period || "") === view.period) &&
+    (!q || (s.name || "").toLowerCase().includes(q) || (s.email || "").toLowerCase().includes(q)));
+  const key = {
+    name: s => (s.name || s.email || "").toLowerCase(),
+    period: s => (PERIODS.indexOf(s.period) + 1 || 999) * 1000 + 0,
+    mastered: s => masteredOf(s) * 100 + learningOf(s),
+    accuracy: s => accuracyOf(s) ?? -1,
+    answered: s => s.answered || 0,
+    lastActive: s => (lastOf(s) ? lastOf(s).getTime() : 0)
+  }[view.sort];
+  list.sort((a, b) => {
+    const x = key(a), y = key(b);
+    const r = x < y ? -1 : x > y ? 1 : 0;
+    return (r || (a.name || "").localeCompare(b.name || "")) * view.dir;
+  });
+  return list;
+}
+
+/* ---------- render ---------- */
+function render() {
+  const known = new Set(PERIODS);
+  const extra = [...new Set(students.map(s => s.period || "No period"))].filter(p => !known.has(p));
+  const periods = PERIODS.concat(extra);
+  const count = p => students.filter(s => (s.period || "No period") === p).length;
+  $("periodSeg").innerHTML = `<button data-v="all" aria-pressed="${view.period === "all"}">All periods · ${students.length}</button>` +
+    periods.filter(p => count(p) || known.has(p)).map(p => `<button data-v="${esc(p)}" aria-pressed="${view.period === p}">${esc(p)} · ${count(p)}</button>`).join("");
+
+  const list = filtered();
+  renderStats(list);
+  renderRows(list);
+  renderTerms(list);
+  document.querySelectorAll("th button[data-sort]").forEach(b => {
+    if (b.dataset.sort === view.sort) b.setAttribute("aria-sort", view.dir > 0 ? "ascending" : "descending"); else b.removeAttribute("aria-sort");
+    b.textContent = b.textContent.replace(/ [↑↓]$/, "") + (b.dataset.sort === view.sort ? (view.dir > 0 ? " ↑" : " ↓") : "");
+  });
+}
+
+function renderStats(list) {
+  const n = list.length;
+  const avg = n ? list.reduce((a, s) => a + masteredOf(s) / TERMS.length, 0) / n : 0;
+  const finished = list.filter(s => masteredOf(s) === TERMS.length).length;
+  const week = list.filter(s => lastOf(s) && Date.now() - lastOf(s).getTime() < 7 * 864e5).length;
+  const answered = list.reduce((a, s) => a + (s.answered || 0), 0);
+  const correct = list.reduce((a, s) => a + (s.correct || 0), 0);
+  $("stats").innerHTML = [
+    [n ? Math.round(avg * 100) + "<small>%</small>" : "–", "Average terms mastered"],
+    [`${finished}<small> / ${n}</small>`, "Finished the whole set"],
+    [`${week}<small> / ${n}</small>`, "Studied in the last 7 days"],
+    [answered ? Math.round(correct / answered * 100) + "<small>%</small>" : "–", `Accuracy on ${answered.toLocaleString()} answers`]
+  ].map(([v, k]) => `<div class="stat"><span class="n">${v}</span><span class="k">${k}</span></div>`).join("");
+}
+
+function renderRows(list) {
+  if (!students.length) {
+    $("rows").innerHTML = `<tr><td colspan="6" class="empty">No students yet. Students appear here after they sign in on the student site and pick their period.</td></tr>`;
+    return;
+  }
+  if (!list.length) { $("rows").innerHTML = `<tr><td colspan="6" class="empty">No students match these filters.</td></tr>`; return; }
+  $("rows").innerHTML = list.map(s => {
+    const m = masteredOf(s), l = learningOf(s), last = lastOf(s);
+    const stale = !last || Date.now() - last.getTime() > 7 * 864e5;
+    const open = view.open === s.uid;
+    return `<tr class="row" data-uid="${esc(s.uid)}" tabindex="0" aria-expanded="${open}">
+      <td class="name"><b>${esc(s.name || "Unnamed")}${m === TERMS.length ? `<span class="done">Done</span>` : ""}</b><span>${esc(s.email || "")}</span></td>
+      <td>${esc(s.period || "–")}</td>
+      <td><div class="mini"><div class="bar"><span class="m" style="width:${m / TERMS.length * 100}%"></span><span class="l" style="width:${l / TERMS.length * 100}%"></span></div><span class="v">${m}/${TERMS.length}</span></div></td>
+      <td class="num">${pct(accuracyOf(s))}</td>
+      <td class="num">${(s.answered || 0).toLocaleString()}</td>
+      <td class="${stale ? "stale" : ""}">${ago(last)}</td>
+    </tr>${open ? detailRow(s) : ""}`;
+  }).join("");
+}
+
+function detailRow(s) {
+  const lv = levels(s), misses = s.misses || {};
+  const chip = i => `<span class="chip s${lv[i]}">${esc(TERMS[i].t)}${misses[i] ? `<em>✗${misses[i]}</em>` : ""}</span>`;
+  const col = (title, st) => {
+    const ids = TERMS.map(t => t.id).filter(i => lv[i] === st).sort((a, b) => (misses[b] || 0) - (misses[a] || 0));
+    return `<div><h3>${title} · ${ids.length}</h3><div class="chips">${ids.length ? ids.map(chip).join("") : `<span class="quiet">None</span>`}</div></div>`;
+  };
+  const first = s.firstSeen && s.firstSeen.toDate ? s.firstSeen.toDate().toLocaleDateString() : "–";
+  const confirming = view.confirmDelete === s.uid;
+  return `<tr class="detail"><td colspan="6">
+    <div class="detailGrid">${col("Learning", 1)}${col("Not started", 0)}${col("Mastered", 2)}</div>
+    <div class="detailFoot">
+      <span>✗ = times missed. Rounds completed: ${s.rounds || 0}. First signed in: ${first}.</span>
+      <span class="confirmRow">${confirming
+        ? `Remove ${esc(s.name || s.email)} and all their progress? <button class="btn danger" data-del="${esc(s.uid)}">Yes, remove</button><button class="btn ghost" data-cancel="1">Cancel</button>`
+        : `<button class="btn ghost" data-ask="${esc(s.uid)}">Remove student</button>`}</span>
+    </div></td></tr>`;
+}
+
+function renderTerms(list) {
+  const n = list.length;
+  const rows = TERMS.map(t => {
+    let m = 0, l = 0, miss = 0;
+    for (const s of list) { const v = levels(s)[t.id]; if (v === 2) m++; else if (v === 1) l++; miss += (s.misses && s.misses[t.id]) || 0; }
+    return { t, m, l, miss };
+  }).sort((a, b) => b.miss - a.miss || a.m - b.m);
+  const shown = view.allTerms ? rows : rows.slice(0, 10);
+  $("termRows").innerHTML = !n ? `<tr><td colspan="4" class="empty">No student data yet.</td></tr>` :
+    shown.map(r => `<tr class="termRow">
+      <td><span class="tname">${esc(r.t.t)}</span><br><span class="tgroup">${esc(GROUP_NAMES[r.t.cat] || "")}</span></td>
+      <td><div class="stack"><span class="m" style="width:${r.m / n * 100}%"></span><span class="l" style="width:${r.l / n * 100}%"></span></div></td>
+      <td class="num">${r.m}/${n}</td>
+      <td class="num"><span class="missN">${r.miss}</span></td></tr>`).join("");
+  $("allTerms").textContent = view.allTerms ? "Show top 10 only" : `Show all ${TERMS.length} terms`;
+}
+
+/* ---------- events ---------- */
+$("periodSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; view.period = b.dataset.v; view.open = null; render(); });
+$("search").addEventListener("input", e => { view.q = e.target.value; render(); });
+$("allTerms").addEventListener("click", () => { view.allTerms = !view.allTerms; render(); });
+document.querySelectorAll("th button[data-sort]").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.sort;
+  if (view.sort === k) view.dir *= -1; else { view.sort = k; view.dir = ["name", "period"].includes(k) ? 1 : -1; }
+  render();
+}));
+$("rows").addEventListener("click", async e => {
+  const ask = e.target.closest("[data-ask]"), del = e.target.closest("[data-del]"), cancel = e.target.closest("[data-cancel]");
+  if (ask) { view.confirmDelete = ask.dataset.ask; return render(); }
+  if (cancel) { view.confirmDelete = null; return render(); }
+  if (del) {
+    del.disabled = true;
+    try { await db.collection("students").doc(del.dataset.del).delete(); view.open = null; view.confirmDelete = null; }
+    catch (err) { del.disabled = false; del.textContent = "Couldn't remove. Try again"; }
+    return;
+  }
+  const row = e.target.closest("tr.row"); if (!row) return;
+  view.open = view.open === row.dataset.uid ? null : row.dataset.uid; view.confirmDelete = null; render();
+});
+$("rows").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches("tr.row")) { e.preventDefault(); e.target.click(); } });
+
+$("csv").addEventListener("click", () => {
+  const head = ["Name", "Email", "Period", "Mastered", "Learning", "Not started", "Total terms", "Accuracy %", "Questions answered", "Rounds", "Last active"];
+  const lines = [head].concat(filtered().map(s => {
+    const m = masteredOf(s), l = learningOf(s), a = accuracyOf(s), last = lastOf(s);
+    return [s.name, s.email, s.period, m, l, TERMS.length - m - l, TERMS.length, a == null ? "" : Math.round(a * 100), s.answered || 0, s.rounds || 0, last ? last.toLocaleString() : ""];
+  })).map(r => r.map(v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`).join(","));
+  const blob = new Blob([lines.join("\r\n")], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `learn-progress-${view.period === "all" ? "all-periods" : view.period.replace(/\W+/g, "-")}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+/* ---------- sign-in ---------- */
+const configured = !!(window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && !/PASTE/.test(window.FIREBASE_CONFIG.apiKey));
+let auth, db, unsub = null;
+
+function gate(html) { $("gate").hidden = false; $("app").hidden = true; $("gate").innerHTML = html; }
+function signInCard(msg) {
+  gate(`<h2>Teacher sign-in</h2>
+    <p class="lede">Sign in with your teacher Google account to see student progress.</p>
+    ${msg ? `<div class="feedback bad"><span class="h">${esc(msg)}</span></div>` : ""}
+    <div class="actions"><span></span><button class="btn primary" id="signIn">Sign in with Google</button></div>`);
+  $("signIn").addEventListener("click", async () => {
+    const p = new firebase.auth.GoogleAuthProvider();
+    p.setCustomParameters({ prompt: "select_account" });
+    try { await auth.signInWithPopup(p); }
+    catch (e) {
+      if (e.code === "auth/popup-blocked") return auth.signInWithRedirect(p);
+      if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") return;
+      signInCard(e.code === "auth/unauthorized-domain" ? "Add this website's domain in Firebase → Authentication → Settings → Authorized domains." : "Sign-in didn't work (" + (e.code || e.message) + ").");
+    }
+  });
+}
+
+if (!configured) {
+  gate(`<h2>Connect Firebase first</h2><p class="lede">Paste your Firebase project settings into <b>firebase-config.js</b> and upload it to the same GitHub repository as this page.</p>`);
+} else {
+  firebase.initializeApp(window.FIREBASE_CONFIG);
+  auth = firebase.auth(); db = firebase.firestore();
+  $("signOut").addEventListener("click", () => auth.signOut());
+  auth.onAuthStateChanged(u => {
+    if (unsub) { unsub(); unsub = null; }
+    students = [];
+    $("signOut").hidden = !u;
+    if (!u) return signInCard();
+    if (!TEACHERS.includes((u.email || "").toLowerCase())) {
+      return gate(`<h2>This account can't open the dashboard</h2>
+        <p class="lede">${esc(u.email)} isn't on the teacher list. Add it to TEACHER_EMAILS in firebase-config.js and to the Firestore security rules, or sign out and use your teacher account.</p>`);
+    }
+    gate(`<p class="lede">Loading students…</p>`);
+    unsub = db.collection("students").onSnapshot(snap => {
+      students = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+      $("gate").hidden = true; $("app").hidden = false;
+      render();
+    }, err => {
+      console.error(err);
+      gate(`<h2>Couldn't load student data</h2>
+        <p class="lede">${err.code === "permission-denied"
+          ? "Firebase blocked this account from reading student progress. Check that your email is in the isTeacher() list in the Firestore security rules, and that you clicked Publish on the rules."
+          : "Check your internet connection and reload the page."}</p>
+        <p class="hint">Details: ${esc(err.code || err.message)}</p>`);
+    });
+  });
+  setInterval(() => { if (!$("app").hidden) render(); }, 60000);
+}
+</script>
+</body>
+</html>
