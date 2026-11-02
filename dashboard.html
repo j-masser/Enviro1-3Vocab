@@ -344,7 +344,8 @@ if (!configured) {
     }
     gate(`<p class="lede">Loading students…</p>`);
     unsub = db.collection("students").onSnapshot(snap => {
-      students = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+      // teachers who try the student site are left out of the class list
+      students = snap.docs.map(d => ({ uid: d.id, ...d.data() })).filter(s => !TEACHERS.includes((s.email || "").toLowerCase()));
       $("gate").hidden = true; $("app").hidden = false;
       render();
     }, err => {

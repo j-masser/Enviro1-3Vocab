@@ -22,6 +22,7 @@
         <a href="#terms" id="tabTerms">Term list</a>
       </nav>
       <button class="btn" id="settingsBtn" aria-expanded="false">Options</button>
+      <a class="btn primary" id="dashBtn" href="dashboard.html" hidden>Teacher dashboard</a>
     </div>
   </header>
 
@@ -162,6 +163,8 @@ if (configured) {
   db = firebase.firestore();
 }
 const PERIODS = window.CLASS_PERIODS || [];
+const TEACHERS = (window.TEACHER_EMAILS || []).map(e => e.toLowerCase());
+const isTeacher = () => !!(user && TEACHERS.includes((user.email || "").toLowerCase()));
 
 function emailAllowed(email) {
   email = (email || "").toLowerCase();
@@ -235,7 +238,7 @@ function renderSignIn(msg) {
     <h2>Sign in to start studying</h2>
     <p class="lede">Use your school Google account. Your progress saves to your account, so you can pick up where you left off on any device.</p>
     ${msg ? `<div class="feedback bad"><span class="h">${esc(msg)}</span></div>` : ""}
-    <div class="actions"><span></span><button class="btn primary" id="signIn">Sign in with Google</button></div>`);
+    <div class="actions"><a class="hint" href="dashboard.html">Teacher? Open the dashboard</a><button class="btn primary" id="signIn">Sign in with Google</button></div>`);
   $("signIn").addEventListener("click", signIn);
 }
 function friendlyAuthError(e) {
@@ -293,6 +296,8 @@ function errorCard(title, e) {
 function enterApp() {
   showApp(true);
   $("who").innerHTML = `<b>${esc(profile.name)}</b> · ${esc(profile.period)}`;
+  $("dashBtn").hidden = !isTeacher();
+  $("changePeriod").hidden = isTeacher();
   renderProgress(); renderList(); route(); startRound();
 }
 
@@ -568,9 +573,10 @@ else {
     const cloud = fixLevels(data.level);
     const local = fixLevels(readJSON(localKey()));
     level = cloud.map((c, i) => Math.max(c, local[i]));
-    profile = { name: u.displayName || u.email, email: u.email, period: data.period || "" };
+    profile = { name: u.displayName || u.email, email: u.email, period: isTeacher() ? "Teacher" : (data.period || "") };
+    if (isTeacher() && data.period !== "Teacher") queueSync();
     if (isNew || local.some((l, i) => l > cloud[i])) queueSync();
-    if (!profile.period || !PERIODS.includes(profile.period)) return renderPeriodPicker();
+    if (!isTeacher() && (!profile.period || !PERIODS.includes(profile.period))) return renderPeriodPicker();
     enterApp();
   });
 }
